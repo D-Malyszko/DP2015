@@ -1,5 +1,6 @@
  
 import java.awt.Dimension;
+import java.util.ArrayList;
 
 import javax.swing.JFrame;
 import javax.swing.JTree;
@@ -53,16 +54,13 @@ public class TreeExample extends JFrame
     	MethodPrinter.Parse(tree,"Application.java");
     }
     
-    public static void Parse(JTree tree, String file) throws Exception{
+    public static ArrayList Parse(JTree tree, String file) throws Exception{
     	
-    	DefaultMutableTreeNode root = new DefaultMutableTreeNode("file");
+  
     	
-    	DefaultTreeModel model = new DefaultTreeModel(root);
+    	ArrayList L = MethodPrinter.Parse(tree, file);
     	
-    	tree.setModel(model);
-    	
-    	MethodPrinter.Parse(tree, file);
-    	
+    	return L;
     	
     }
     

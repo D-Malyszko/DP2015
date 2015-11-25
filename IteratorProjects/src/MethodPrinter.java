@@ -19,12 +19,14 @@ import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.body.VariableDeclaratorId;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
+import com.github.javaparser.ast.lexical.Lexeme;
 import com.github.javaparser.ast.stmt.TypeDeclarationStmt;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
+import com.github.javaparser.parser.*;
 
 public class MethodPrinter {
 
-    public static void Parse(JTree tree, String file) throws Exception {
+    public static ArrayList Parse(JTree tree, String file) throws Exception {
         // creates an input stream for the file to be parsed
         FileInputStream in = new FileInputStream(file);
 
@@ -36,12 +38,35 @@ public class MethodPrinter {
             in.close();
         }
         
+        
+        
         ast a = new ast();
         a.tree = tree;
         a.node = new DefaultMutableTreeNode();
         
         // visit and print the methods names
         new MethodVisitor().visit(cu, (Object)a);
+        
+        ArrayList L = new ArrayList();
+        
+        Lexeme lexeme = cu.first();
+        
+        if(lexeme == null)
+        	return L;
+        
+        L.add(lexeme);
+        
+        lexeme = lexeme.next();
+        
+        while(lexeme != null) {
+        	
+        	L.add(lexeme);
+        	
+        	lexeme = lexeme.next();
+        }
+        
+        return L;
+
         
         
     }

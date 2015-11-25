@@ -14,7 +14,6 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.*;
 import java.awt.image.*;
-
 import java.util.*;
 
 import javax.swing.*;
@@ -29,6 +28,7 @@ import javax.imageio.ImageIO;
 import org.apache.commons.io.IOUtils;
 
 import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.lexical.Lexeme;
 
 import syntaxhighlight.SyntaxHighlighter;
 import syntaxhighlighter.SyntaxHighlighterParser;
@@ -1005,7 +1005,36 @@ class JavaStrategy extends Strategy {
 	
 	public void Parse(String file) throws Exception{
 
-		TreeExample.Parse(tree, file);
+  	
+		DefaultMutableTreeNode root = new DefaultMutableTreeNode("file");
+    	
+    	DefaultTreeModel model = new DefaultTreeModel(root);
+    	
+    	tree.setModel(model);
+  
+		
+		ArrayList<Lexeme> L = TreeExample.Parse(tree, file);
+		
+		
+		
+		for(Lexeme e: L){
+	
+			DefaultMutableTreeNode node = new DefaultMutableTreeNode(e.image());
+			
+
+			root.add(node);
+			
+			
+			
+			
+			
+		}
+
+		model.reload();
+		
+		tree.setModel(model);
+		
+		tree.repaint();
 		
 	}
 	

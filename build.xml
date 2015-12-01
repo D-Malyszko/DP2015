@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project basedir="." default="build-all" name="all-projects">
-  <target description="Build all projects" name="build-all">
+  <target description="Build all projects" name="test">
     <ant antfile="build.xml" target="build-project" dir="./PatternsProjects" inheritAll="false"/>
+    
    </target>
 </project>

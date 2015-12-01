@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- WARNING: Eclipse auto-generated file.
+              Any modifications will be overwritten.
+              To include a user specific buildfile here, simply create one in the same
+              directory with the processing instruction <?eclipse.ant.import?>
+              as the first entry and export the buildfile again. --><project basedir="." default="build" name="PatternsProjects">
+    <property environment="env"/>
+    <property name="ECLIPSE_HOME" value="../../eclipse/"/>
+    <property name="DJProjects.location" value="../DJProjects"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.8"/>
+    <property name="source" value="1.8"/>
+    <path id="DJProjects.classpath">
+        <pathelement location="${DJProjects.location}/bin"/>
+        <pathelement location="${DJProjects.location}/lib/jna_WindowUtils.jar"/>
+        <pathelement location="${DJProjects.location}/lib/jna-4.0.0.jar"/>
+        <pathelement location="${DJProjects.location}/lib/MozillaInterfaces-1.8.1.3.jar"/>
+        <pathelement location="${DJProjects.location}/lib/swt.jar"/>
+    </path>
+    <path id="PatternsProjects.classpath">
+        <pathelement location="bin"/>
+        <path refid="DJProjects.classpath"/>
+        <pathelement location="lib/commons-io-2.4.jar"/>
+        <pathelement location="lib/javaparser.jar"/>
+        <pathelement location="lib/JavaSyntaxHighlighter-1.2.0.jar"/>
+        <pathelement location="lib/jna_WindowUtils.jar"/>
+        <pathelement location="lib/jna-4.0.0.jar"/>
+        <pathelement location="lib/jsoup-1.8.3.jar"/>
+        <pathelement location="lib/mongo-java-driver-3.1.0-rc0.jar"/>
+        <pathelement location="lib/morphia-1.0.1.jar"/>
+        <pathelement location="lib/MozillaInterfaces-1.8.1.3.jar"/>
+        <pathelement location="lib/procyon-decompiler-0.5.30.jar"/>
+        <pathelement location="lib/sql2o-1.5.4.jar"/>
+        <pathelement location="lib/sqlite-jdbc-3.8.11.1.jar"/>
+        <pathelement location="lib/swt-debug.jar"/>
+        <pathelement location="lib/swt.jar"/>
+        <pathelement location="libs/commons-logging-1.1.1.jar"/>
+        <pathelement location="libs/gdata-appsforyourdomain-1.0.jar"/>
+        <pathelement location="libs/gdata-base-1.0.jar"/>
+        <pathelement location="libs/gdata-calendar-1.0.jar"/>
+        <pathelement location="libs/gdata-client-1.0.jar"/>
+        <pathelement location="libs/gdata-codesearch-1.0.jar"/>
+        <pathelement location="libs/gdata-photos-1.0.jar"/>
+        <pathelement location="libs/gdata-spreadsheet-1.0.jar"/>
+        <pathelement location="libs/google-api-client-1.20.0.jar"/>
+        <pathelement location="libs/google-api-client-android-1.20.0.jar"/>
+        <pathelement location="libs/google-api-client-appengine-1.20.0.jar"/>
+        <pathelement location="libs/google-api-client-gson-1.20.0.jar"/>
+        <pathelement location="libs/google-api-client-jackson2-1.20.0.jar"/>
+        <pathelement location="libs/google-api-client-java6-1.20.0.jar"/>
+        <pathelement location="libs/google-api-client-servlet-1.20.0.jar"/>
+        <pathelement location="libs/google-api-services-youtube-v3-rev148-1.20.0-javadoc.jar"/>
+        <pathelement location="libs/google-api-services-youtube-v3-rev148-1.20.0-sources.jar"/>
+        <pathelement location="libs/google-api-services-youtube-v3-rev148-1.20.0.jar"/>
+        <pathelement location="libs/google-oauth-client-1.20.0.jar"/>
+        <pathelement location="libs/google-oauth-client-appengine-1.20.0.jar"/>
+        <pathelement location="libs/google-oauth-client-java6-1.20.0.jar"/>
+        <pathelement location="libs/google-oauth-client-jetty-1.20.0.jar"/>
+        <pathelement location="libs/google-oauth-client-servlet-1.20.0.jar"/>
+        <pathelement location="libs/gson-2.1.jar"/>
+        <pathelement location="libs/httpclient-4.0.1.jar"/>
+        <pathelement location="libs/httpcore-4.0.1.jar"/>
+        <pathelement location="libs/idw-gpl.jar"/>
+        <pathelement location="libs/jackson-core-2.1.3.jar"/>
+        <pathelement location="libs/jdo2-api-2.3-eb.jar"/>
+        <pathelement location="libs/jetty-6.1.26.jar"/>
+        <pathelement location="libs/jetty-util-6.1.26.jar"/>
+        <pathelement location="libs/jsr305-1.3.9.jar"/>
+        <pathelement location="libs/transaction-api-1.1.jar"/>
+        <pathelement location="libs/google-http-client-1.20.0.jar"/>
+        <pathelement location="libs/google-http-client-android-1.20.0.jar"/>
+        <pathelement location="libs/google-http-client-appengine-1.20.0.jar"/>
+        <pathelement location="libs/google-http-client-gson-1.20.0.jar"/>
+        <pathelement location="libs/google-http-client-jackson2-1.20.0.jar"/>
+        <pathelement location="libs/google-http-client-jdo-1.20.0.jar"/>
+    </path>
+    <target name="init">
+        <mkdir dir="bin"/>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="src">
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+    <target name="clean">
+        <delete dir="bin"/>
+    </target>
+    <target depends="clean" name="cleanall">
+        <ant antfile="build.xml" dir="${DJProjects.location}" inheritAll="false" target="clean"/>
+    </target>
+    <target depends="build-subprojects,build-project" name="build"/>
+    <target name="build-subprojects">
+        <ant antfile="build.xml" dir="${DJProjects.location}" inheritAll="false" target="build-project">
+            <propertyset>
+                <propertyref name="build.compiler"/>
+            </propertyset>
+        </ant>
+    </target>
+    <target depends="init" name="build-project">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}">
+            <src path="src"/>
+            <classpath refid="PatternsProjects.classpath"/>
+        </javac>
+    </target>
+    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
+    <target description="copy Eclipse compiler jars to ant lib directory" name="init-eclipse-compiler">
+        <copy todir="${ant.library.dir}">
+            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
+        </copy>
+        <unzip dest="${ant.library.dir}">
+            <patternset includes="jdtCompilerAdapter.jar"/>
+            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
+        </unzip>
+    </target>
+    <target description="compile project with Eclipse compiler" name="build-eclipse-compiler">
+        <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
+        <antcall target="build"/>
+    </target>
+    <target name="Application (1)">
+        <java classname="Application" failonerror="true" fork="yes">
+            <classpath refid="PatternsProjects.classpath"/>
+        </java>
+    </target>
+    <target name="FileBrowser (1)">
+        <java classname="FileBrowser" failonerror="true" fork="yes">
+            <classpath refid="PatternsProjects.classpath"/>
+        </java>
+    </target>
+</project>

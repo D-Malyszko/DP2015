@@ -1,5 +1,8 @@
 import java.awt.Point;
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +12,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
+
+import org.apache.commons.io.IOUtils;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
@@ -26,10 +31,25 @@ import com.github.javaparser.parser.*;
 
 public class MethodPrinter {
 
-    public static ArrayList Parse(JTree tree, String file) throws Exception {
+    public static ArrayList Parse(JTree tree, String file, Boolean isContent) throws Exception {
         // creates an input stream for the file to be parsed
-        FileInputStream in = new FileInputStream(file);
+    	
+    	
+    	
+    	InputStream in = null;
+    	
+    	if(isContent)
+    	
+    	//in = IOUtils.toInputStream(file, "UTF-8");
+    	
+    	in = new ByteArrayInputStream(file.getBytes(StandardCharsets.UTF_8));
+    	
+    	else
+    		
+        in = new FileInputStream(file);
 
+        
+        
         CompilationUnit cu;
         try {
             // parse the file
@@ -132,30 +152,15 @@ public class MethodPrinter {
       	@Override
         public void visit(VariableDeclarator n, Object arg) {
             
-     		
-     		//String type = n.getType().toString();
-     		
-            //List<VariableDeclarator> names = n.getVars();
-            
+    		
+             
             String dc = n.getId().getName();
             
             ast s = (ast)arg;
             
             s.vars.add(dc);
             
-            //ast a = new ast();
-            //a.tree = s.tree;
-            //s.classes.add(a);
-            //int sc = n.getBeginColumn();
-            //int sr = n.getBeginLine();
-            //Point start = new Point(sc, sr);
-            //a.start = start;
-            
-//            int ec = n.getBeginColumn();
-//            int er = n.getBeginLine();
-//            Point end = new Point(ec, er);
-//            a.end = end;
-//            ast.LoadClass(s, a, name);
+
             super.visit(n,  arg);
         }
     	
@@ -174,20 +179,7 @@ public class MethodPrinter {
             
             s.vars.add(dc);
             
-            //ast a = new ast();
-            //a.tree = s.tree;
-            //s.classes.add(a);
-            //int sc = n.getBeginColumn();
-            //int sr = n.getBeginLine();
-            //Point start = new Point(sc, sr);
-            //a.start = start;
-            
-//            int ec = n.getBeginColumn();
-//            int er = n.getBeginLine();
-//            Point end = new Point(ec, er);
-//            a.end = end;
-//            ast.LoadClass(s, a, name);
-            //super.visit(n,  arg);
+ 
         }
     	
        	@Override

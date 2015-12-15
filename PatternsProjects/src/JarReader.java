@@ -69,6 +69,8 @@ public class JarReader {
 					
 					node.add(nodes);
 					
+					model.reload();
+					
 					System.out.println(myClass);
 					
 					}

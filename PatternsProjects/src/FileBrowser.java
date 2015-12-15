@@ -25,11 +25,16 @@ import javax.swing.text.Highlighter;
 import javax.swing.filechooser.FileSystemView;
 import javax.imageio.ImageIO;
 
+import org.apache.bcel.classfile.ClassParser;
+import org.apache.bcel.classfile.Field;
+import org.apache.bcel.classfile.JavaClass;
+import org.apache.bcel.classfile.Method;
 import org.apache.commons.io.IOUtils;
 
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.lexical.Lexeme;
 import com.github.javaparser.ast.lexical.LexemeKind;
+import com.sun.org.apache.bcel.internal.util.ClassPath.ClassFile;
 
 import syntaxhighlight.Eventer;
 import syntaxhighlight.SyntaxHighlighter;
@@ -52,7 +57,7 @@ import java.net.URL;
 class FileBrowser {
 
     /** Title of the application */
-    public static final String APP_TITLE = "FileBro";
+    public static final String APP_TITLE = "File Browser";
     /** Used to open/edit/print files. */
     private Desktop desktop;
     /** Provides nice icons and names for files. */
@@ -102,6 +107,44 @@ class FileBrowser {
     
     public JPanel panel;
     
+    static class OSValidator {
+
+        private static String OS = System.getProperty("os.name").toLowerCase();
+
+     
+        public static boolean isWindows() {
+            return (OS.indexOf("win") >= 0);
+        }
+
+        public static boolean isMac() {
+            return (OS.indexOf("mac") >= 0);
+        }
+
+        public static boolean isUnix() {
+            return (OS.indexOf("nix") >= 0 || OS.indexOf("nux") >= 0 || OS.indexOf("aix") > 0 );
+        }
+
+        public static boolean isSolaris() {
+            return (OS.indexOf("sunos") >= 0);
+        }
+        public static String getOS(){
+            if (isWindows()) {
+                return "win";
+            } else if (isMac()) {
+                return "osx";
+            } else if (isUnix()) {
+                return "uni";
+            } else if (isSolaris()) {
+                return "sol";
+            } else {
+                return "err";
+            }
+        }
+
+    }
+    
+
+    
     public void LoadFiles(String path){
     	
     	
@@ -149,6 +192,62 @@ class FileBrowser {
     	
     }
 
+   public void LoadFileLX(String path){
+    	
+    	
+    	tree.setExpandsSelectedPaths(true);
+    	
+    	String []paths = path.split("/");
+
+    	
+    	
+    	String file = "";
+    	
+    	
+    	
+    	
+    	
+    	for(int i = 1; i < paths.length; i++){
+    		
+    	
+    		if(i == 1)
+    		file = "/" + paths[1];
+    		else 
+    		file = file + "/" + paths[i];
+    		
+    		DefaultMutableTreeNode node = (DefaultMutableTreeNode)findTreeNode(new File(file));
+    		
+    		TreePath tp = findTreePath(new File(file));
+    		
+    		if(node == null){
+    			
+    			
+    			return;
+    			
+    			
+    		}
+    		else {
+
+    			tree.expandPath(tp);
+    			
+    			tree.setSelectionPath(tp);
+
+    			tree.repaint();
+    			
+    			showChildren((DefaultMutableTreeNode)node);
+    			setFileDetails((File)node.getUserObject());
+
+    			tree.repaint();
+    			
+    		}
+    		
+    		
+    		
+    	}
+    	
+    }
+    
+    
     public void LoadFile(String path){
     	
     	
@@ -272,6 +371,9 @@ class FileBrowser {
         
         lbs = new JTree(modeldw);
  
+        
+        
+        
         JScrollPane scrollsdw = new JScrollPane(lbs);
         
     	parsePanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT, scrolls, scrollsdw);
@@ -279,6 +381,49 @@ class FileBrowser {
     	parsePanel.setResizeWeight(0.5);
        
     	splitPanel.setDividerLocation(locs);
+    	
+    	
+        TreeSelectionListener treeSelectionListeners = new TreeSelectionListener() {
+            public void valueChanged(TreeSelectionEvent tse){
+           
+            	
+              	if(parsePanel == null)
+            			LoadParsePanel();
+            	
+            	
+                DefaultMutableTreeNode node =     (DefaultMutableTreeNode)tse.getPath().getLastPathComponent();
+                
+                Object object = node.getUserObject();
+                        
+            	
+            	if(object instanceof java.util.jar.JarEntry){
+                	
+                	
+                	java.util.jar.JarEntry jarFile = (java.util.jar.JarEntry)object;
+                	
+                	String file = jarFile.toString();
+                	
+                	String entry = "dest" + "\\" + file;
+                	
+                	String content = flyweight.LoadJar(entry);
+                
+                	//String asm = flyweight.loadClass(entry);
+                	
+                	try{
+                	flyweight.Display(entry, panel, trees, lbs, content /*+ "\n" + asm*/);
+                	}
+                	catch(Exception e){};
+                	
+                }
+            	
+            }
+        };
+ 
+        lbs.addTreeSelectionListener(treeSelectionListeners);
+
+    	
+    	
+    	
     	
     	LoadInfoPanel();
     	
@@ -495,6 +640,8 @@ class FileBrowser {
             
             JButton javaJre = new JButton("JDK"); 
            
+            JButton recentFiles = new JButton("Recent");
+            
             JPanel fileView = new JPanel(new BorderLayout(3,3));
 
             detailView.add(fileView, BorderLayout.SOUTH);
@@ -541,6 +688,10 @@ class FileBrowser {
                     DefaultMutableTreeNode node =
                         (DefaultMutableTreeNode)tse.getPath().getLastPathComponent();
                    
+                        Object object = node.getUserObject();
+                    
+                        if(object instanceof ast) {
+                        
                     	ast a = (ast)node.getUserObject();
                     	
                     	Point s = a.start;
@@ -567,13 +718,33 @@ class FileBrowser {
                     	
                     	LoadAst(a);
                     	
-                    
+                        }
+                        else if(object instanceof java.util.jar.JarEntry){
+                        	
+                        	
+                        	java.util.jar.JarEntry jarFile = (java.util.jar.JarEntry)object;
+                        	
+                        	String file = jarFile.toString();
+                        	
+                        	String entry = "dest" + "\\" + file;
+                        	
+                        	String content = flyweight.LoadJar(entry);
+                        
+                        	String asm = flyweight.loadClass(entry);
+                        	
+                        	try{
+                        	flyweight.Display(file, panel, trees, lbs, content + "\n" + asm);
+                        	}
+                        	catch(Exception e){};
+                        	
+                        }
                 }
             };
      
             trees.addTreeSelectionListener(treeSelectionListeners);
             
             locateFile.addActionListener(new ActionListener(){
+            	
                 public void actionPerformed(ActionEvent ae) {
                     try {
                     	                    	
@@ -585,7 +756,7 @@ class FileBrowser {
                         
                         flyweight = factory.get(exts);
                         
-                        flyweight.Display(file, panel, trees);
+                        flyweight.Display(file, panel, trees,lbs, "");
                         
                         
                     } catch(Throwable t) {
@@ -614,7 +785,7 @@ class FileBrowser {
                 public void actionPerformed(ActionEvent ae) {
                     try {
                     	                    	
-                        Starter.Load(lbs);
+                        Starter.Load(lbs, "jre");
                         
                         
                     } catch(Throwable t) {
@@ -625,8 +796,36 @@ class FileBrowser {
             });
             toolBar.add(javaJre);
             
+            recentFiles.addActionListener(new ActionListener(){
+                public void actionPerformed(ActionEvent ae) {
+                    try {
+                        
+                    	
+                    	LoadFile("/home/student");
+                        
+                        
+                    } catch(Throwable t) {
+                        showThrowable(t);
+                    }
+                    gui.repaint();
+                }
+            });
+            toolBar.add(recentFiles);
+            
+            
+            
             
             gui.setPreferredSize(new Dimension(800, 500));
+            
+            if(OSValidator.isUnix()){
+            	
+            	String file = new File(".").getAbsoluteFile().getPath();
+            	
+            	LoadFiles(file);
+            	
+            }
+
+            
             
         }
         return gui;
@@ -635,6 +834,8 @@ class FileBrowser {
     static class Starter implements Runnable {
 
     	JTree tree = null;
+    	
+    	String file;
     	
     	public Starter(JTree tree){
     		
@@ -649,16 +850,36 @@ class FileBrowser {
         	 
         	 root.removeAllChildren();
         	
+        	 File g = new File(file);
+        	 
+        	 
+        	 if(g.isDirectory() == true){
+        	 
         	 File []files = FileBrowser.GetFiles("jre");
         	
         	 for(File file: files)
         	
         		 JarReader.getClassesFromJar(file.getPath(), tree);
         	
+        	 }
+        	 else {
+        		 
+        		 try{
+        		 JarZip.Uncompress(file, "dest", tree);
+        		 }
+        		 catch(Exception e){};
+        		 
+        	 }
+        	 
         }
 
-        public static void Load(JTree tree) {
-            (new Thread(new Starter(tree))).start();
+        public static void Load(JTree tree, String file) {
+        	
+        	Starter starter = new Starter(tree); 
+        	
+        	starter.file = file;
+        	
+            new Thread(starter).start();
         }
 
     }
@@ -1107,7 +1328,7 @@ abstract class Strategy {
 	
 	public List<ArrayList> ll;
 	
-	abstract public void Parse(String file) throws Exception;
+	abstract public void Parse(String file, Boolean isContent) throws Exception;
 	
 	public static Strategy StrategFactory(JTree trees){
 		
@@ -1177,7 +1398,7 @@ class JavaStrategy extends Strategy {
 	
 	//public List<ArrayList> ll = null;
 	
-	public void Parse(String file) throws Exception{
+	public void Parse(String file, Boolean isContent) throws Exception{
 
   	
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode("file");
@@ -1189,7 +1410,7 @@ class JavaStrategy extends Strategy {
     	DefaultMutableTreeNode nodes = new DefaultMutableTreeNode("tokens");
     	
 		
-		ArrayList<Lexeme> L = TreeExample.Parse(tree, file);
+		ArrayList<Lexeme> L = TreeExample.Parse(tree, file, isContent);
 		
 		root.add(nodes);
 		
@@ -1222,9 +1443,119 @@ class JavaStrategy extends Strategy {
 	
 }
 
+class JarZip {
+	
+	public static void Uncompress(String source, String dest) throws IOException {
+	
+		File d = new File(dest);
+
+		String destFile = d.getAbsolutePath();
+		
+		System.out.println(destFile);
+		
+		if(d.exists() == false)
+			d.mkdir();
+		
+	java.util.jar.JarFile jar = new java.util.jar.JarFile(source);
+	java.util.Enumeration enumEntries = jar.entries();
+	while (enumEntries.hasMoreElements()) {
+	    java.util.jar.JarEntry file = (java.util.jar.JarEntry) enumEntries.nextElement();
+	    java.io.File f = new java.io.File(destFile + java.io.File.separator + file.getName());
+	    if (file.isDirectory()) { // if its a directory, create it
+	        f.mkdir();
+	        continue;
+	    }
+	    java.io.InputStream is = jar.getInputStream(file); // get the input stream
+	    java.io.FileOutputStream fos = new java.io.FileOutputStream(f);
+	    while (is.available() > 0) {  // write contents of 'is' to 'fos'
+	        fos.write(is.read());
+	    }
+	    fos.close();
+	    is.close();
+	}
+	
+	}
+	
+	public static void Uncompress(String source, String dest, JTree tree) throws IOException {
+		
+		
+		DefaultMutableTreeNode root = new DefaultMutableTreeNode("file");
+    	
+    	DefaultTreeModel model = new DefaultTreeModel(root);
+    	
+    	tree.setModel(model);
+  
+    	DefaultMutableTreeNode nodes = new DefaultMutableTreeNode("classes");
+		
+		root.add(nodes);
+    	
+    	
+		File d = new File(dest);
+
+		String destFile = d.getAbsolutePath();
+		
+		System.out.println(destFile);
+		
+		if(d.exists() == false)
+			d.mkdir();
+		
+	java.util.jar.JarFile jar = new java.util.jar.JarFile(source);
+	
+	java.util.Enumeration enumEntries = jar.entries();
+	
+	
+	
+	int i = 0;
+	
+	while (enumEntries.hasMoreElements()) {
+	   
+		
+		
+		java.util.jar.JarEntry file = (java.util.jar.JarEntry) enumEntries.nextElement();
+	    java.io.File f = new java.io.File(destFile + java.io.File.separator + file.getName());
+	    
+	    
+	    
+	    DefaultMutableTreeNode node = new DefaultMutableTreeNode();
+	    
+	    node.setUserObject(file);
+	    
+	    if (file.isDirectory()) { // if its a directory, create it
+	        f.mkdir();
+	        nodes.add(node);
+	        
+	        //tree.expandRow(i++);
+	        
+	    model.reload();
+	        continue;
+	    }
+	    java.io.InputStream is = jar.getInputStream(file); // get the input stream
+	    java.io.FileOutputStream fos = new java.io.FileOutputStream(f);
+	    while (is.available() > 0) {  // write contents of 'is' to 'fos'
+	        fos.write(is.read());
+	    }
+	    fos.close();
+	    is.close();
+	    
+	    nodes.add(node);
+	    
+	    
+	    model.reload();
+	    
+	    //tree.expandRow(i++);
+	   
+	}
+	
+	model.reload();
+	
+	tree.updateUI();
+	
+	}
+}
+
 interface Flyweight {
         
-    public void Display(String file,  JPanel panel, JTree tree) throws Exception;
+    public void Display(String file,  JPanel panel, JTree tree, JTree jartree, String content) throws Exception;
     
 }
 
@@ -1238,24 +1569,106 @@ class ConcreteFlyweight implements Flyweight {
     	
     }
       	
+      	
+
+       	public String LoadJar(String file){
        	
-    public void Display(String file, JPanel panel, JTree trees) throws Exception{
+       		
+       		
+       		StringWriter sw = new StringWriter();
+       		
+       		PrintWriter writer = new PrintWriter(sw);
+       		
+       	try {
+       	    com.strobel.decompiler.Decompiler.decompile(
+       	    file,
+       	        new com.strobel.decompiler.PlainTextOutput(writer)
+       	    );
+       	}
+       	finally {
+       	    writer.flush();
+       	}
+       	
+       	return sw.toString();
+       	
+   	}   
+       	
+       	static public String loadClass(String fileName) {
+    		try {
+    			ClassParser classParser = new ClassParser(fileName);
+    			JavaClass classFile = classParser.parse();
+    			
+    			String cc = classFile.toString(); 
+    			
+    			Field [] f = classFile.getFields();
+    			
+    			if(f != null)
+    			for(Field b: f)
+        			
+        			cc = cc + "\\" + b.toString().toString();
+    			
+    			
+    			Method []m = classFile.getMethods(); 
+    			
+    			if(m != null)
+    			for(Method b: m)
+    			
+    			cc = cc + "\\" + b.getCode().toString();
+    			
+    			return cc;
+    			
+    		} catch (IOException e) {
+    			System.out.println("Could not find FileName file. Exiting");
+    			return "";
+    		}
+    	}
+       	
+       	
+    public void Display(String file, JPanel panel, JTree trees, JTree jartree, String content) throws Exception{
  
+    	
+    	if(file.endsWith(".jar")) {
+    	
+    	
+    		FileBrowser.Starter.Load(jartree, file);
+    	
+    		return;
+    	 
+    	}
+    	 
     	
     	Strategy strategy = Strategy.StrategFactory(trees);
     	
-    	strategy.Parse(new File(file).getAbsolutePath());
+    	Boolean isContent = true;
+
+    	String entry = content;
     	
-    	String content = "";
     	
+    	
+    	if(content == "")
+    	{
+    		isContent = false;
+    
     	FileInputStream fisTargetFile;
 		try {
 			fisTargetFile = new FileInputStream(new File(file));
 			content = IOUtils.toString(fisTargetFile);
 		} catch (Exception e) {}
+        
+		
+		entry = new File(file).getAbsolutePath();
+		
+    	}
+    	
+       	strategy.Parse(entry, isContent);
+
+    		
+    
 		
 		//content = content.trim();
 
+    	
+		
 		panel.removeAll();
        	
        	highlighter.setHighlightOnMouseOver(false);
@@ -1278,7 +1691,15 @@ class ConcreteFlyweight implements Flyweight {
     	
     	Events events = new Events();
     	
+    	
+    	if(isContent == false)
+    	
     	events.ws = highlighter.highlighter.Whitespaces(file);
+    	
+    	else
+    		
+    		events.ws = highlighter.highlighter.WhitespacesContent(content);
+    	
     	
     	events.sh = highlighter;
     	

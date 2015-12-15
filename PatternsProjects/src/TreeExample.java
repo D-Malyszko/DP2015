@@ -51,14 +51,12 @@ public class TreeExample extends JFrame
     	
     	tree.setModel(model);
     	
-    	MethodPrinter.Parse(tree,"Application.java");
+    	MethodPrinter.Parse(tree,"Application.java", false);
     }
     
-    public static ArrayList Parse(JTree tree, String file) throws Exception{
+    public static ArrayList Parse(JTree tree, String file, Boolean isContent) throws Exception{
     	
-  
-    	
-    	ArrayList L = MethodPrinter.Parse(tree, file);
+    	ArrayList L = MethodPrinter.Parse(tree, file, isContent);
     	
     	return L;
     	

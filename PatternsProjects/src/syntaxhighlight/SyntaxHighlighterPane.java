@@ -380,6 +380,27 @@ public class SyntaxHighlighterPane extends JTextPane {
 	 return ws;
  }
   
+public List<Integer>  WhitespacesContent(String content) throws IOException{
+	 
+	 List<Integer> ws = new LinkedList<Integer>();
+	 
+	 	 
+	 String text = content;
+	 
+	 String []str = text.split("\n");
+	 
+	 for(String s: str){
+		 
+		 
+		 Integer w = s.length() - s.replaceAll("^\\s+", "").length();
+		 
+		 ws.add(w);
+		 
+	 };
+	 
+	 return ws;
+ }
+ 
 
   
   public void actionPerformed() throws BadLocationException
@@ -391,33 +412,15 @@ public class SyntaxHighlighterPane extends JTextPane {
   	    offset = Utilities.getRowStart(this, offset) - 1;
   	    rowNum++;
   	}
-  	//System.out.println("Row: " + rowNum);   
-  	
+    	
   	int offset = Utilities.getRowStart(this, caretPos);
-  	
-  	//String text = this.getText();
-  	
-  	//String s = text.substring(offset, caretPos);
-  	
-  	//ws = s.length() - s.replaceAll("^\\s+", "").length();
-  	
-  	//System.out.println("The number whites parts is: " + ws);
-  	
-  	//int ws = getLeadingWhiteSpace(row);
-  	
+  		
   	colNum = caretPos - offset + 1;
-  	
-  	//colNum = colNum + ws - wp;
-  	
-  	//System.out.println("Col: " + colNum);
-	  
-      
+  	  
       SwingUtilities.invokeLater(new Runnable() 
       {
         public void run()
         {
-        	
-        	
         	
         	if(eventer != null)
  			   eventer.action();
